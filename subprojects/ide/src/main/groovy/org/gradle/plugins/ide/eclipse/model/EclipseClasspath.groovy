@@ -21,6 +21,7 @@ import org.gradle.plugins.ide.api.XmlFileContentMerger
 import org.gradle.plugins.ide.eclipse.model.internal.ClasspathFactory
 import org.gradle.plugins.ide.eclipse.model.internal.ExportedEntriesUpdater
 import org.gradle.plugins.ide.eclipse.model.internal.FileReferenceFactory
+import org.gradle.plugins.ide.internal.resolver.LoggingUnresolvedIdeDependencyHandler
 import org.gradle.util.ConfigureUtil
 
 /**
@@ -206,7 +207,9 @@ class EclipseClasspath {
      * Calculates, resolves and returns dependency entries of this classpath.
      */
     public List<ClasspathEntry> resolveDependencies() {
-        def entries = new ClasspathFactory().createEntries(this)
+        def classpathFactory = new ClasspathFactory()
+        def entries = classpathFactory.createEntries(this)
+        new LoggingUnresolvedIdeDependencyHandler().handle(classpathFactory.getUnresolvedDependencies(this))
         new ExportedEntriesUpdater().updateExported(entries, this.noExportConfigurations*.name)
         return entries
     }
